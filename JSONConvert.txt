@@ -1,0 +1,74 @@
+ 📁 JSON Convert Project Structure
+
+  ~/Documents/script/JSONConvert/
+  ├── table2JsonConvert.py       (10K) - Export table to JSON & delete
+  ├── json2TableConvert.py       (13K) - Import JSON back to table
+  ├── tableJsonConvert.json      (992B) - Configuration file
+  ├── exports/                   - Default export directory
+  └── README.md                  (5.7K) - Complete documentation
+
+  🔧 Features Implemented
+
+  table2JsonConvert.py
+
+  - ✅ Export by date (records before cutoff)
+  - ✅ Export by ID (records with ID < value)
+  - ✅ Custom WHERE clause support
+  - ✅ Export all records option
+  - ✅ Confirmation before deletion
+  - ✅ Batch processing for large datasets
+  - ✅ Transaction support
+  - ✅ Comprehensive logging
+
+  json2TableConvert.py
+
+  - ✅ Validation mode (dry run without import)
+  - ✅ Column mapping validation
+  - ✅ Batch insert processing
+  - ✅ Duplicate key detection
+  - ✅ Error handling with optional rollback
+  - ✅ Comprehensive logging
+
+  Configuration File
+
+  - ✅ Database connection settings (pre-configured for DocInfo Manager)
+  - ✅ Default output paths
+  - ✅ Batch size settings
+  - ✅ WHERE clause templates
+  - ✅ Logging configuration
+
+  🎨 Design Features
+
+  Both scripts use CB9Lib for:
+  - Colored terminal output (RED, GREEN, YELLOW, CYAN)
+  - Clear screen and header formatting
+  - Consistent exit displays
+  - Professional user interface
+
+  📖 Usage Examples
+
+  Export old records:
+
+  cd ~/Documents/script/JSONConvert/
+  python3 table2JsonConvert.py
+
+  Validate before import:
+
+  python3 json2TableConvert.py
+  # Select mode 1 (Validate Only)
+
+  Import data:
+
+  python3 json2TableConvert.py
+  # Select mode 2 (Import Data)
+
+  📋 Key Features Summary
+
+  1. Safe Deletion - Confirmation required before deleting exported records
+  2. Flexible WHERE Clauses - Filter exactly which data to export
+  3. Validation Mode - Test imports without changing database
+  4. Batch Processing - Handles large datasets efficiently
+  5. Complete Logging - All operations logged to ~/Documents/log/jsonConvert.log
+  6. Error Handling - Graceful failure with detailed error messages
+
+  All files have been created with proper headers, version 1.0, and are ready to use!

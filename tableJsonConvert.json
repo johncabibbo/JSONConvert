@@ -1,0 +1,83 @@
+{
+  "_metadata": {
+    "project": "JSONConvert",
+    "version": "1.2",
+    "lastUpdated": "2026-03-01",
+    "description": "Configuration file for table2JsonConvert and json2TableConvert scripts. Profiles inherit from top-level defaults unless overridden."
+  },
+
+  "database": {
+    "type": "MySQL",
+    "host": "YOUR_SERVER_IP",
+    "user": "YOUR_DB_USER",
+    "password": "YOUR_DB_PASSWORD",
+    "database": "docInfo",
+    "port": 3306
+  },
+
+  "export": {
+    "defaultOutputPath": "~/Documents/script/JSONConvert/exports/",
+    "dateFormat": "%Y-%m-%d %H:%M:%S",
+    "batchSize": 1000,
+    "confirmBeforeDelete": true,
+    "fileExistsAction": "rename",
+    "outputFilePostExt": ""
+  },
+
+  "import": {
+    "validateOnly": false,
+    "stopOnError": true,
+    "insertBatchSize": 100
+  },
+
+  "whereClauseTemplates": {
+    "byDate": "createdDate < :cutoffDate",
+    "byId": "id < :cutoffId",
+    "byDateRange": "createdDate BETWEEN :startDate AND :endDate",
+    "byStatus": "status = :status",
+    "custom": ""
+  },
+
+  "logging": {
+    "enabled": true,
+    "logPath": "~/Documents/log/jsonConvert.log",
+    "logLevel": "INFO",
+    "logPostExt": ""
+  },
+
+  "profiles": [
+    {
+      "profileId": "docInfo-activityLog",
+      "description": "DocInfo activity log export profile",
+      "export": {
+        "sourceSQL": "SELECT * FROM activityLog WHERE activityDate < '2026-01-12' ",
+        "outputFile": "~/Documents/script/JSONConvert/exports/activityLog_2026-01-12.json",
+        "deleteAfterExport": true
+      },
+      "logging": {
+        "logPath": "~/Documents/log/jsonConvert_docInfo-activityLog.log"
+      }
+    },
+
+    {
+      "profileId": "test-activityLog",
+      "description": "Localhost activity log import profile",
+      "export": {
+        "sourceSQL": "SELECT * FROM activityLog WHERE activityDate > '2026-01-16' and activityDate < '2026-01-17' ",
+        "outputFile": "~/Documents/script/JSONConvert/exports/activityLog_2026-03-01.json",
+        "deleteAfterExport": true
+      },
+      "logging": {
+        "logPath": "~/Documents/log/jsonConvert_test1-activityLog.log"
+      }
+    },
+
+    {
+      "profileId": "***test-activityLog_import",
+      "description": "Localhost activity log import profile",
+      "logging": {
+        "logPath": "~/Documents/log/jsonConvert_test1-activityLog.log"
+      }
+    }
+  ]
+}

@@ -1,0 +1,315 @@
+{
+  "_metadata": {
+    "project": "JSONConvert",
+    "version": "2.1",
+    "lastUpdated": "2026-03-01",
+    "description": "Sample configuration file with example profiles for various use cases"
+  },
+
+  "database": {
+    "type": "MySQL",
+    "host": "localhost",
+    "user": "dbuser",
+    "password": "your_password_here",
+    "database": "your_database",
+    "port": 3306
+  },
+
+  "export": {
+    "defaultOutputPath": "~/Documents/script/JSONConvert/exports/",
+    "dateFormat": "%Y-%m-%d %H:%M:%S",
+    "batchSize": 1000,
+    "confirmBeforeDelete": true,
+    "fileExistsAction": "rename"
+  },
+
+  "import": {
+    "validateOnly": false,
+    "stopOnError": true,
+    "insertBatchSize": 100
+  },
+
+  "whereClauseTemplates": {
+    "byDate": "createdDate < :cutoffDate",
+    "byId": "id < :cutoffId",
+    "byDateRange": "createdDate BETWEEN :startDate AND :endDate",
+    "byStatus": "status = :status",
+    "custom": ""
+  },
+
+  "logging": {
+    "enabled": true,
+    "logPath": "~/Documents/log/jsonConvert.log",
+    "logLevel": "INFO"
+  },
+
+  "profiles": [
+    {
+      "_comment": "========== EXAMPLE 1: Basic MySQL Archive ==========",
+      "_description": "Archive old activity logs, delete after export, rename if file exists",
+      "profileId": "mysql-activityLog-archive",
+      "description": "Archive activity logs older than 90 days (MySQL)",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM activityLog WHERE activityDate < DATE_SUB(NOW(), INTERVAL 90 DAY)",
+        "outputFile": "~/Documents/script/JSONConvert/exports/activityLog_{date}.json",
+        "deleteAfterExport": true,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "192.168.1.100",
+        "user": "dbadmin",
+        "password": "secure_password",
+        "database": "production_db",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_activityLog.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 2: SQL Server with Overwrite ==========",
+      "_description": "Daily backup that overwrites previous file each day",
+      "profileId": "sqlserver-orders-daily",
+      "description": "Daily orders backup (SQL Server) - overwrites previous",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM orders WHERE orderDate >= DATEADD(day, -1, CAST(GETDATE() AS DATE)) AND orderDate < CAST(GETDATE() AS DATE)",
+        "outputFile": "~/Documents/script/JSONConvert/exports/orders_yesterday.json",
+        "deleteAfterExport": false,
+        "fileExistsAction": "overwrite"
+      },
+      "database": {
+        "type": "SQLServer",
+        "host": "sqlserver.company.com",
+        "user": "sa",
+        "password": "SqlServer_Password",
+        "database": "SalesDB",
+        "port": 1433
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_orders.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 3: Skip if Already Exported ==========",
+      "_description": "Monthly export that skips if file exists (prevents duplicate runs)",
+      "profileId": "mysql-invoices-monthly",
+      "description": "Monthly invoice archive - skip if already exported",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM invoices WHERE MONTH(invoiceDate) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH)) AND YEAR(invoiceDate) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))",
+        "outputFile": "~/Documents/script/JSONConvert/exports/invoices_{year}-{month}.json",
+        "deleteAfterExport": false,
+        "fileExistsAction": "skip"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "mysql.company.com",
+        "user": "readonly_user",
+        "password": "readonly_password",
+        "database": "accounting",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_invoices.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 4: Export by Status ==========",
+      "_description": "Export completed tickets and delete from source",
+      "profileId": "mysql-tickets-completed",
+      "description": "Archive completed support tickets",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM supportTickets WHERE statusId = 5 AND closedDate < DATE_SUB(NOW(), INTERVAL 30 DAY)",
+        "outputFile": "~/Documents/script/JSONConvert/exports/tickets_completed_{datetime}.json",
+        "deleteAfterExport": true,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "localhost",
+        "user": "support_admin",
+        "password": "support_password",
+        "database": "helpdesk",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_tickets.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 5: Azure SQL Server ==========",
+      "_description": "Export from Azure SQL Database",
+      "profileId": "azure-analytics-events",
+      "description": "Archive analytics events from Azure SQL",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM analyticsEvents WHERE eventTimestamp < DATEADD(day, -7, GETDATE())",
+        "outputFile": "~/Documents/script/JSONConvert/exports/azure_analytics_{timestamp}.json",
+        "deleteAfterExport": true,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "SQLServer",
+        "host": "yourserver.database.windows.net",
+        "user": "sqladmin@yourserver",
+        "password": "Azure_Password_123!",
+        "database": "AnalyticsDB",
+        "port": 1433
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_azure.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 6: Localhost Development ==========",
+      "_description": "Development database backup (no delete)",
+      "profileId": "dev-users-backup",
+      "description": "Backup users table from dev database",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM users",
+        "outputFile": "~/Documents/script/JSONConvert/exports/dev_users_{datetime}.json",
+        "deleteAfterExport": false,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "dev_password",
+        "database": "dev_database",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_dev.log",
+        "logLevel": "DEBUG"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 7: Custom WHERE with JOIN ==========",
+      "_description": "Export with complex query including JOIN",
+      "profileId": "mysql-orderDetails-archive",
+      "description": "Archive order details for shipped orders",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT od.* FROM orderDetails od INNER JOIN orders o ON od.orderId = o.orderId WHERE o.statusId = 4 AND o.shippedDate < DATE_SUB(NOW(), INTERVAL 6 MONTH)",
+        "outputFile": "~/Documents/script/JSONConvert/exports/orderDetails_shipped_{date}.json",
+        "deleteAfterExport": true,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "mysql-prod.company.com",
+        "user": "etl_user",
+        "password": "etl_password",
+        "database": "ecommerce",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_orderDetails.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 8: Specific Date Range ==========",
+      "_description": "Export records within a specific date range",
+      "profileId": "mysql-logs-daterange",
+      "description": "Export error logs for Q4 2025",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM errorLogs WHERE logDate >= '2025-10-01' AND logDate < '2026-01-01'",
+        "outputFile": "~/Documents/script/JSONConvert/exports/errorLogs_Q4_2025.json",
+        "deleteAfterExport": false,
+        "fileExistsAction": "skip"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "logs-server.company.com",
+        "user": "log_reader",
+        "password": "log_password",
+        "database": "system_logs",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_errorLogs.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 9: Large Table with Limit ==========",
+      "_description": "Export in batches using LIMIT for very large tables",
+      "profileId": "mysql-sessions-batch",
+      "description": "Export oldest 100K session records",
+      "export": {
+        "dateFormat": "%Y-%m-%d %H:%M:%S",
+        "sourceSQL": "SELECT * FROM userSessions WHERE lastActivity < DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY lastActivity ASC LIMIT 100000",
+        "outputFile": "~/Documents/script/JSONConvert/exports/sessions_batch_{timestamp}.json",
+        "deleteAfterExport": true,
+        "fileExistsAction": "rename"
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "sessions-db.company.com",
+        "user": "session_admin",
+        "password": "session_password",
+        "database": "user_sessions",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_sessions.log",
+        "logLevel": "INFO"
+      }
+    },
+
+    {
+      "_comment": "========== EXAMPLE 10: Import-Only Profile ==========",
+      "_description": "Profile for importing data (no export settings)",
+      "profileId": "mysql-restore-target",
+      "description": "Target database for restoring archived data",
+      "import": {
+        "validateOnly": false,
+        "stopOnError": false,
+        "insertBatchSize": 500
+      },
+      "database": {
+        "type": "MySQL",
+        "host": "restore-server.company.com",
+        "user": "restore_user",
+        "password": "restore_password",
+        "database": "archive_restore",
+        "port": 3306
+      },
+      "logging": {
+        "enabled": true,
+        "logPath": "~/Documents/log/jsonConvert_restore.log",
+        "logLevel": "INFO"
+      }
+    }
+  ]
+}
